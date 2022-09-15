@@ -1,0 +1,6 @@
+bases:
+  - ../../base
+patches:
+  - sonarqube-pvc-size.yaml
+  - postgresql-pvc-size.yaml
+  - sonarqube-image.yaml

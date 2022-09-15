@@ -1,0 +1,8 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: postgresql-sonarqube
+spec:
+  resources:
+    requests:
+      storage: "8Gi"

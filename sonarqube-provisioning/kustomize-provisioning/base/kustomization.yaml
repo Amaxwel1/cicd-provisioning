@@ -1,0 +1,12 @@
+resources:
+  - postgres-secret.yaml
+  - sonar-cm-config.yaml
+  - sonar-cm-copy-plugins.yaml
+  - sonar-cm-install-plugins.yaml
+  - postgres-pvc.yaml
+  - sonar-pvc.yaml
+  - postgres-service.yaml
+  - sonar-service.yaml
+  - sonar-deployment.yaml
+  - postgres-dc.yaml
+  - sonar-route.yaml

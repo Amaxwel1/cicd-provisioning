@@ -1,0 +1,10 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarqube-sonarqube
+spec:
+  template:
+    spec:
+      containers:
+        - name: sonarqube
+          image: "sonarqube:9.4-community"
