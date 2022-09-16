@@ -1,15 +1,9 @@
----
-# Source: sonatype-nexus/templates/setup-nexus-job.yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: nexus-setup
-  labels:
-    app: nexus-setup
----
-# Source: sonatype-nexus/templates/setup-nexus-job.yaml
 apiVersion: v1
 kind: ConfigMap
+metadata:
+  name: nexussetup
+  labels:
+    app: nexus-setup
 data:
   config-nexus.sh: |-    
     #!/bin/bash
@@ -90,6 +84,22 @@ data:
       -H "Content-Type: application/json" \
       -d "{ \"name\": \"maven-public\", \"format\": \"maven2\", \"online\": true, \"storage\": { \"blobStoreName\": \"default\", \"strictContentTypeValidation\": true }, \"group\": { \"memberNames\": [\"red-hat-ea\", \"red-hat-ga\",\"maven-releases\", \"maven-snapshots\", \"maven-central\"]}, \"type\": \"group\"}"
     
+    # raw hosted via rest
+    echo "🐺 creating labs-static raw hosted repo"
+    curl -s -k -X POST "${NEXUS_URL}/service/rest/beta/repositories/raw/hosted" \
+      --user "${NEXUS_USER}" \
+      -H "accept: application/json" \
+      -H "Content-Type: application/json" \
+      -d "{ \"name\": \"labs-static\", \"online\": true, \"storage\": { \"blobStoreName\": \"default\", \"strictContentTypeValidation\": true, \"writePolicy\": \"ALLOW\" }}"
+    
+    # PyPi Proxy
+    echo "🐍 Adding PyPi Proxy"
+    curl -s -k -X POST "${NEXUS_URL}/service/rest/v1/repositories/pypi/proxy" \
+      --user "${NEXUS_USER}" \
+      -H "accept: application/json" \
+      -H "Content-Type: application/json" \
+      -d "{ \"name\" : \"pypi\", \"format\" : \"pypi\", \"proxy\": { \"remoteUrl\": \"https://pypi.org\", \"contentMaxAge\": 1440, \"metadataMaxAge\": 1440 }, \"storage\": { \"blobStoreName\": \"default\", \"strictContentTypeValidation\": true }, \"negativeCache\": { \"enabled\": true, \"timeToLive\": 1440 }, \"online\": true, \"httpClient\": { \"blocked\": false, \"autoBlock\": true, \"connection\": { \"retries\": 0, \"userAgentSuffix\": \"string\", \"timeout\": 60, \"enableCircularRedirects\": false, \"enableCookies\": false, \"useTrustStore\": false }, \"authentication\": { \"type\": \"username\", \"username\": \"string\", \"password\": \"string\", \"ntlmHost\": \"string\", \"ntlmDomain\": \"string\", \"preemptive\": false } }}"  
+    
     # disable anonymous access by not running onboarding
     oc -n ${NS} exec $(oc -n ${NS} get pods -o custom-columns=NAME:.metadata.name --no-headers -lapp="sonatype-nexus") -- bash -c 'if ! grep -q "nexus.onboarding.enabled" /nexus-data/etc/nexus.properties; then echo "nexus.onboarding.enabled=false" >> /nexus-data/etc/nexus.properties; fi'
     
@@ -98,206 +108,3 @@ data:
     oc -n ${NS} wait pod -lapp="sonatype-nexus" --for=condition=Ready --timeout=300s
     
     echo -e "${GREEN}Done!${NC}"
-    
-# TODO - Descobrir para o que server
-    
-    # raw hosted via rest
-    # echo "🐺 creating labs-static raw hosted repo"
-    #curl -s -k -X POST "${NEXUS_URL}/service/rest/beta/repositories/raw/hosted" \
-    #  --user "${NEXUS_USER}" \
-    #  -H "accept: application/json" \
-    #  -H "Content-Type: application/json" \
-    #  -d "{ \"name\": \"labs-static\", \"online\": true, \"storage\": { \"blobStoreName\": \"default\", \"strictContentTypeValidation\": true, \"writePolicy\": \"ALLOW\" }}"
-    
-    # PyPi Proxy
-    # echo "🐍 Adding PyPi Proxy"
-    # curl -s -k -X POST "${NEXUS_URL}/service/rest/v1/repositories/pypi/proxy" \
-    #  --user "${NEXUS_USER}" \
-    #  -H "accept: application/json" \
-    #  -H "Content-Type: application/json" \
-    #  -d "{ \"name\" : \"pypi\", \"format\" : \"pypi\", \"proxy\": { \"remoteUrl\": \"https://pypi.org\", \"contentMaxAge\": 1440, \"metadataMaxAge\": 1440 }, \"storage\": { \"blobStoreName\": \"default\", \"strictContentTypeValidation\": true }, \"negativeCache\": { \"enabled\": true, \"timeToLive\": 1440 }, \"online\": true, \"httpClient\": { \"blocked\": false, \"autoBlock\": true, \"connection\": { \"retries\": 0, \"userAgentSuffix\": \"string\", \"timeout\": 60, \"enableCircularRedirects\": false, \"enableCookies\": false, \"useTrustStore\": false }, \"authentication\": { \"type\": \"username\", \"username\": \"string\", \"password\": \"string\", \"ntlmHost\": \"string\", \"ntlmDomain\": \"string\", \"preemptive\": false } }}"  
-     
-metadata:
-  name: nexussetup
-  labels:
-    app: nexus-setup
----
-# Source: sonatype-nexus/templates/pvc.yaml
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: nexus-sonatype-nexus-data
-  labels:
-    app: sonatype-nexus
-    fullname: nexus-sonatype-nexus
-    chart: sonatype-nexus-1.1.8
-    release: nexus
-    heritage: Helm
-spec:
-  accessModes:
-    - "ReadWriteOnce"
-  resources:
-    requests:
-      storage: "8Gi"
----
-# Source: sonatype-nexus/templates/setup-nexus-job.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  creationTimestamp: null
-  name: edit-0
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: edit
-subjects:
-- kind: ServiceAccount
-  name: nexus-setup
----
-# Source: sonatype-nexus/templates/service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: sonatype-nexus-service
-  labels:
-    app: sonatype-nexus
-    fullname: nexus-sonatype-nexus
-    chart: sonatype-nexus-1.1.8
-    release: nexus
-    heritage: Helm
-spec:
-  ports:
-  - name: nexus-service
-    port: 8081
-    targetPort: 8081
-  selector:
-    app: sonatype-nexus
-    release: nexus
-  type: ClusterIP
----
-# Source: sonatype-nexus/templates/deployment-statefulset.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nexus-sonatype-nexus
-  labels:
-    app: sonatype-nexus
-    fullname: nexus-sonatype-nexus
-    chart: sonatype-nexus-1.1.8
-    release: nexus
-    heritage: Helm
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: sonatype-nexus
-      release: nexus
-  template:
-    metadata:
-      labels:
-        app: sonatype-nexus
-        release: nexus
-    spec:
-      containers:
-        - name: nexus
-          image: registry.connect.redhat.com/sonatype/nexus-repository-manager:3.39.0-ubi-1
-          imagePullPolicy: IfNotPresent
-          lifecycle:
-          env:
-            - name: install4jAddVmParams
-              value: -Xms1200M -Xmx1200M -XX:MaxDirectMemorySize=2G -XX:+UnlockExperimentalVMOptions
-                -XX:+UseCGroupMemoryLimitForHeap
-            - name: NEXUS_SECURITY_RANDOMPASSWORD
-              value: "false"
-          resources:
-            {}
-          ports:
-            - containerPort: 5003
-              name: nexus-docker-g
-            - containerPort: 8081
-              name: nexus-http
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 8081
-            initialDelaySeconds: 30
-            periodSeconds: 30
-            failureThreshold: 6
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 8081
-            initialDelaySeconds: 30
-            periodSeconds: 30
-            failureThreshold: 6
-          volumeMounts:
-            - mountPath: /nexus-data
-              name: nexus-sonatype-nexus-data
-            - mountPath: /nexus-data/backup
-              name: nexus-sonatype-nexus-backup
-      volumes:
-        - name: nexus-sonatype-nexus-data
-          persistentVolumeClaim:
-            claimName: nexus-sonatype-nexus-data
-        - name: nexus-sonatype-nexus-backup
-          emptyDir: {}
-
-
-## create pvc in case of statefulsets
----
-# Source: sonatype-nexus/templates/setup-nexus-job.yaml
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: nexus-setup
-  labels:
-    app: nexus-setup
-spec:
-  template:
-    metadata:
-      name: nexus-setup-job
-    spec:
-      restartPolicy: OnFailure
-      serviceAccountName: nexus-setup
-      volumes:
-      - configMap:
-          defaultMode: 420
-          name: nexussetup
-        name: nexussetup
-      containers:
-      - name: nc
-        image: quay.io/openshift/origin-jenkins-agent-base:latest
-        imagePullPolicy: IfNotPresent
-        command:
-        - /bin/sh
-        - -c
-        - "source /tmp/config-nexus.sh"
-        volumeMounts:
-        - mountPath: /tmp/config-nexus.sh
-          name: nexussetup
-          subPath: config-nexus.sh
----
-# Source: sonatype-nexus/templates/config-nexus.txt
-# Define maven templates we use below
-
-# The main nexus configuration here
----
-# Source: sonatype-nexus/templates/route.yaml
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  name: nexus
-  labels: 
-  annotations:
-spec:
-  host: null
-  port:
-    targetPort: nexus-service
-  tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
-  to:
-    kind: Service
-    name: sonatype-nexus-service
-    weight: 100
-  wildcardPolicy: None

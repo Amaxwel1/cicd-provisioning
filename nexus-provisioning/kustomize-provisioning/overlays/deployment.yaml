@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nexus-sonatype-nexus
+  labels:
+    app: sonatype-nexus
+    fullname: nexus-sonatype-nexus
+    chart: sonatype-nexus-1.1.8
+    release: nexus
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonatype-nexus
+      release: nexus
+  template:
+    metadata:
+      labels:
+        app: sonatype-nexus
+        release: nexus
+    spec:
+      containers:
+        - name: nexus
+          image: registry.connect.redhat.com/sonatype/nexus-repository-manager:3.39.0-ubi-1
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+          env:
+            - name: install4jAddVmParams
+              value: -Xms1200M -Xmx1200M -XX:MaxDirectMemorySize=2G -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap
+                -XX:+UseCGroupMemoryLimitForHeap
+            - name: NEXUS_SECURITY_RANDOMPASSWORD
+              value: "false"
+          resources:
+            {}
+          ports:
+            - containerPort: 5003
+              name: nexus-docker-g
+            - containerPort: 8081
+              name: nexus-http
+          livenessProbe:
+            httpGet:
+              path: /service/rest/v1/status
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 6
+          readinessProbe:
+            httpGet:
+              path: /service/rest/v1/status
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 6
+          volumeMounts:
+            - mountPath: /nexus-data
+              name: nexus-sonatype-nexus-data
+            - mountPath: /nexus-data/backup
+              name: nexus-sonatype-nexus-backup
+      volumes:
+        - name: nexus-sonatype-nexus-data
+          persistentVolumeClaim:
+            claimName: nexus-sonatype-nexus-data
+        - name: nexus-sonatype-nexus-backup
+          emptyDir: {}

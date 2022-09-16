@@ -1,0 +1,9 @@
+resources:
+  - sa-job.yaml
+  - cm-job.yaml
+  - pvc.yaml
+  - rb-job.yaml
+  - service.yaml
+  - deployment.yaml
+  - job.yaml
+  - route.yaml
