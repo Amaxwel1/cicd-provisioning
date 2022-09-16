@@ -1,4 +1,4 @@
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 kind: Template
 labels:
   template: sonarqube
@@ -7,13 +7,13 @@ metadata:
 parameters:
 - displayName: PostgreSQL PVC Size
   value: 8Gi
-  name: POSTGRESQL-PVC-SIZE
+  name: POSTGRESQL_PVC_SIZE
 - displayName: SonarQube Deployment Image
   value: sonarqube:9.4-community
-  name: SONARQUBE-DEPLOYMENT-IMAGE
+  name: SONARQUBE_DEPLOYMENT_IMAGE
 - displayName: SonarQube PVC Size
   value: 12Gi
-  name: SONARQUBE-PVC-SIZE
+  name: SONARQUBE_PVC_SIZE
 objects:
 - apiVersion: v1
   kind: Secret
@@ -94,7 +94,7 @@ objects:
       - "ReadWriteOnce"
     resources:
       requests:
-        storage: ${POSTGRESQL-PVC-SIZE}
+        storage: ${POSTGRESQL_PVC_SIZE}
 - kind: PersistentVolumeClaim
   apiVersion: v1
   metadata:
@@ -110,7 +110,7 @@ objects:
       - "ReadWriteOnce"
     resources:
       requests:
-        storage: ${SONARQUBE-PVC-SIZE}
+        storage: ${SONARQUBE_PVC_SIZE}
 - apiVersion: v1
   kind: Service
   metadata:
@@ -172,7 +172,7 @@ objects:
       spec:
         containers:
           - name: sonarqube
-            image: ${SONARQUBE-DEPLOYMENT-IMAGE}
+            image: ${SONARQUBE_DEPLOYMENT_IMAGE}
             imagePullPolicy: "IfNotPresent"
             ports:
               - name: http
