@@ -1,0 +1,10 @@
+resources:
+  - postgresql-secret.yaml
+  - configmap.yaml
+  - persistentvolumeclaim.yaml
+  - postgresql-pvc.yaml
+  - postgresql-svc.yaml
+  - service.yaml
+  - deploymentconfig.yaml
+  - postgresql-dc.yaml
+  - route.yaml

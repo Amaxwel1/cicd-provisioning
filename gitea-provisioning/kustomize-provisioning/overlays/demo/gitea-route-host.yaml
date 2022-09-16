@@ -1,0 +1,6 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: gitea
+spec:
+  host: gitea-teste.apps.middleware.rhbr-lab.com

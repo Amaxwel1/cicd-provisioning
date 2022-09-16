@@ -1,0 +1,10 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: gitea
+spec:
+  template:
+    spec:
+      containers:
+      - image: "quay.io/gpte-devops-automation/gitea:1.17"
+        name: gitea
