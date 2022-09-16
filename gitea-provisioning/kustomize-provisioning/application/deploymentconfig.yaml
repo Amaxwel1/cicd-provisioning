@@ -29,7 +29,7 @@ spec:
         deploymentconfig: gitea
     spec:
       containers:
-      - image: ' '
+      - image: "quay.io/gpte-devops-automation/gitea:latest"
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
@@ -79,15 +79,3 @@ spec:
           name: gitea-config
         name: gitea-config
   test: false
-  triggers:
-  - type: ConfigChange
-  - imageChangeParams:
-      automatic: true
-      containerNames:
-        - gitea
-      from:
-        kind: ImageStreamTag
-        name: 'gitea:latest'
-        namespace: oqss-cicd
-      lastTriggeredImage: ''
-    type: ImageChange

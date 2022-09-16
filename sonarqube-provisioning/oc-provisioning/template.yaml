@@ -5,9 +5,15 @@ labels:
 metadata:
   name: sonarqube
 parameters:
-- displayName: test
-  value: test
-  name: test
+- displayName: PostgreSQL PVC Size
+  value: 8Gi
+  name: POSTGRESQL-PVC-SIZE
+- displayName: SonarQube Deployment Image
+  value: sonarqube:9.4-community
+  name: SONARQUBE-DEPLOYMENT-IMAGE
+- displayName: SonarQube PVC Size
+  value: 12Gi
+  name: SONARQUBE-PVC-SIZE
 objects:
 - apiVersion: v1
   kind: Secret
@@ -88,7 +94,7 @@ objects:
       - "ReadWriteOnce"
     resources:
       requests:
-        storage: "5Gi"
+        storage: ${POSTGRESQL-PVC-SIZE}
 - kind: PersistentVolumeClaim
   apiVersion: v1
   metadata:
@@ -104,7 +110,7 @@ objects:
       - "ReadWriteOnce"
     resources:
       requests:
-        storage: "10Gi"
+        storage: ${SONARQUBE-PVC-SIZE}
 - apiVersion: v1
   kind: Service
   metadata:
@@ -166,7 +172,7 @@ objects:
       spec:
         containers:
           - name: sonarqube
-            image: "sonarqube:9.5-community"
+            image: ${SONARQUBE-DEPLOYMENT-IMAGE}
             imagePullPolicy: "IfNotPresent"
             ports:
               - name: http
