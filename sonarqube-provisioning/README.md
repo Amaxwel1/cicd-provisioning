@@ -1,19 +1,19 @@
 # SonarQube Provision
 
-## Informations
+## Informations:
 - **Default credentials are:**
   - **User:** admin
   - **Password:** admin
 
 ## Kustomize Provisioning:
 
-### Deploy With Default Configurations
+### Deploy With Default Configurations:
     
     oc new-project oqss-cicd
     git clone https://github.com/davidsf026/nexus-provisioning/
     oc apply -k ./nexus-provisioning/kustomize/base
     
-### Deploy With Custom Configurations
+### Deploy With Custom Configurations:
 1. Clone this repository:
 		
 		git clone https://github.com/redhat-oraex/cicd-provisioning/
