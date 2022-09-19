@@ -20,13 +20,13 @@
 
        parameters:
        - displayName: PostgreSQL PVC Size
-         value: 8Gi
+         value: 15Gi
          name: POSTGRESQL_PVC_SIZE
        - displayName: SonarQube Deployment Image
-         value: sonarqube:9.4-community
+         value: sonarqube:9.3-community
          name: SONARQUBE_DEPLOYMENT_IMAGE
        - displayName: SonarQube PVC Size
-         value: 12Gi
+         value: 20Gi
          name: SONARQUBE_PVC_SIZE
 
 3. And now you just need to the deploy the template file.
