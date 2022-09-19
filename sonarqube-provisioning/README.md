@@ -5,7 +5,7 @@
   - **User:** admin
   - **Password:** admin
 
-## Deploy With OC Commands
+## Deploy With OC Commands:
 
 ### Deploy With Default Configurations:
 
