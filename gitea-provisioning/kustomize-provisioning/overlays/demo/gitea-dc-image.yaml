@@ -4,7 +4,41 @@ metadata:
   name: gitea
 spec:
   template:
+    metadata:
+      creationTimestamp: null
     spec:
       containers:
       - image: "quay.io/gpte-devops-automation/gitea:1.17"
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
         name: gitea
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 20
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /gitea-repositories
+          name: gitea-repositories
+        - mountPath: /home/gitea/conf
+          name: gitea-config

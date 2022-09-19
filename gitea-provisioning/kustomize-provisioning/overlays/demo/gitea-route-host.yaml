@@ -3,4 +3,4 @@ kind: Route
 metadata:
   name: gitea
 spec:
-  host: gitea-teste.apps.middleware.rhbr-lab.com
+  host: gitea-teste-dois.apps.middleware.rhbr-lab.com

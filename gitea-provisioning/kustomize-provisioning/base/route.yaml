@@ -13,7 +13,7 @@ metadata:
     generator: helm
   name: gitea
 spec:
-  host: gitea-oqss-cicd.apps.middleware.rhbr-lab.com
+  host: gitea.apps.middleware.rhbr-lab.com
   to:
     kind: Service
     name: gitea

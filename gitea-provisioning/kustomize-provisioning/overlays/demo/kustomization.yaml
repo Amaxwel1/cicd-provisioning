@@ -2,7 +2,7 @@ bases:
   - ../../base
 patches:
   - gitea-cm-url.yaml
+  - gitea-dc-image.yaml
   - gitea-pvc-size.yaml
   - gitea-route-host.yaml
   - postgresql-pvc-size.yaml
-  - gitea-dc-image.yaml
