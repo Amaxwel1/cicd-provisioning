@@ -4,7 +4,6 @@ resources:
   - postgres-secret.yaml
   - postgres-service.yaml
   - sonar-cm-config.yaml
-  - sonar-cm-copy-plugins.yaml
   - sonar-deployment.yaml
   - sonar-pvc.yaml
   - sonar-route.yaml

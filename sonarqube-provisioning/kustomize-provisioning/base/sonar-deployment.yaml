@@ -85,8 +85,6 @@ spec:
               subPath: logs
             - mountPath: /tmp
               name: tmp-dir
-            - name: copy-plugins
-              mountPath: /tmp/scripts
           resources:
             {}
       volumes:
@@ -96,19 +94,6 @@ spec:
           items:
           - key: sonar.properties
             path: sonar.properties
-      - name: install-plugins
-        configMap:
-          name: sonarqube-sonarqube-install-plugins
-          items:
-            - key: install_plugins.sh
-              path: install_plugins.sh
-      - name: copy-plugins
-        configMap:
-          name: sonarqube-sonarqube-copy-plugins
-          defaultMode: 0755
-          items:
-            - key: copy_plugins.sh
-              path: copy_plugins.sh
       - name: sonarqube
         persistentVolumeClaim:
           claimName: sonarqube-sonarqube
