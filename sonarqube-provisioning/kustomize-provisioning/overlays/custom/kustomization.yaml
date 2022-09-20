@@ -3,4 +3,4 @@ bases:
 patches:
   - sonarqube-pvc-size.yaml
   - postgresql-pvc-size.yaml
-  - sonarqube-image.yaml
+  - sonarqube-deployment-image.yaml
