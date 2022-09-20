@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: ConfigMap
+data:
+  config-sonarqube.sh: |-    
+    #!/bin/bash
+
+    # WAITING FOR SONARQUBE POD READINESS
+    echo "SCRIPT-INFO: Waiting for SonarQube pod to be ready..."
+    oc wait pod -ltarget="jobsonarqube" --for=condition=Ready --timeout=600s || exit $?
+    echo "SCRIPT-INFO: SonarQube pod is now ready!"
+
+    download_plugins() {      
+      mkdir -p /home/jenkins/downloads
+      cd /home/jenkins/downloads
+
+      ###########################################################
+      ####### PUT BELOW THE PLUGIN LINKS PRECEDED BY WGET #######
+      ###########################################################
+      #
+      # EXAMPLE (DO IT WITHOUT THE HASH "#"):
+      #
+      # wget https://github.com/sbaudoin/sonar-ansible/releases/download/v2.5.1/sonar-ansible-plugin-2.5.1.jar
+      # wget https://github.com/CreditMutuelArkea/sonar-apigee-plugin/releases/download/v3.0.1/sonar-apigee-plugin-3.0.1.jar
+      # wget https://github.com/dependency-check/dependency-check-sonar-plugin/releases/download/3.0.1/sonar-dependency-check-plugin-3.0.1.jar
+      
+      wget https://github.com/sbaudoin/sonar-ansible/releases/download/v2.5.1/sonar-ansible-plugin-2.5.1.jar
+      wget https://github.com/CreditMutuelArkea/sonar-apigee-plugin/releases/download/v3.0.1/sonar-apigee-plugin-3.0.1.jar
+      wget https://github.com/dependency-check/dependency-check-sonar-plugin/releases/download/3.0.1/sonar-dependency-check-plugin-3.0.1.jar
+    }
+
+    wait_for_sonarqube_api_be_ready() {
+        local i=0
+        API_READINESS_TEST_URL=${SONARQUBE_URL}/api/plugins/installed
+        until [ $(curl -k -s -o /dev/null -I -w "%{http_code}" -u ${SONARQUBE_USER_PASSWORD} -X POST ${API_READINESS_TEST_URL}) = "200" ]
+        do
+            echo "SCRIPT-INFO: Waiting for 200 response from ${API_READINESS_TEST_URL}"
+            sleep 10
+            API_READINESS_TEST_URL=${SONARQUBE_URL}/api/plugins/installed
+            
+            echo -n "SCRIPT-INFO: ${API_READINESS_TEST_URL} is returning: "
+            curl -k -s -o /dev/null -I -w "%{http_code}" -u ${SONARQUBE_USER_PASSWORD} -X POST ${API_READINESS_TEST_URL}
+            echo ""
+
+            ((i=i+1))
+            if [ $i -gt 100 ]; then
+                echo "SCRIPT-INFO: Failed! SonarQube API is not working..."
+                exit 1
+            fi
+        done
+    }
+
+    # VARS DECLARATION
+    SONARQUBE_USER_PASSWORD=admin:admin
+    SONARQUBE_POD_NAME=$(oc get pods --selector=target=jobsonarqube --no-headers -o custom-columns=":metadata.name")
+    SONARQUBE_SVC_NAME=$(oc get svc -ltarget=jobsonarqube -o name)
+    SONARQUBE_URL=http://$(oc get ${SONARQUBE_SVC_NAME} -o jsonpath --template='{.metadata.name}:{.spec.ports[].port}')
+
+    # SONARQUBE API READINESS PROBE
+    echo "SCRIPT-INFO: Waiting for SonarQube API be ready..."
+    wait_for_sonarqube_api_be_ready
+
+    # DOWNLOADING PLUGINS AND COPYING TO SONARQUBE POD
+    echo "SCRIPT-INFO: Downloading plugins..."
+    download_plugins
+    echo "SCRIPT-INFO: Copying plugins to SonarQube pod..."
+    oc cp /home/jenkins/downloads $(oc get pods --selector=target=jobsonarqube  --no-headers -o custom-columns=":metadata.name"):/opt/sonarqube/extensions
+
+    # RESTARTING SONARQUBE
+    echo "SCRIPT-INFO: Restarting SonarQube..."
+    curl -k -s -u ${SONARQUBE_USER_PASSWORD} -X POST ${SONARQUBE_URL}/api/system/restart
+    echo "SCRIPT-INFO: END OF SCRIPT, bye bye!!"
+
+metadata:
+  name: sonarqubesetup
+  labels:
+    app: sonarqube-setup

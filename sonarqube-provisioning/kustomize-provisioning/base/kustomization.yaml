@@ -10,3 +10,7 @@ resources:
   - sonar-deployment.yaml
   - postgres-dc.yaml
   - sonar-route.yaml
+  - sonar-job-sa.yaml
+  - sonar-job-rb.yaml
+  - sonar-job-cm.yaml
+  - sonar-job.yaml

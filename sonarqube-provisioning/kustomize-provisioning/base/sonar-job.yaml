@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sonarqube-setup
+  labels:
+    app: sonarqube-setup
+spec:
+  template:
+    metadata:
+      name: sonarqube-setup-job
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: sonarqube-setup
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: sonarqubesetup
+        name: sonarqubesetup
+      containers:
+      - name: nc
+        image: quay.io/openshift/origin-jenkins-agent-base:latest
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/sh
+        - -c
+        - "source /tmp/config-sonarqube.sh"
+        volumeMounts:
+        - mountPath: /tmp/config-sonarqube.sh
+          name: sonarqubesetup
+          subPath: config-sonarqube.sh
