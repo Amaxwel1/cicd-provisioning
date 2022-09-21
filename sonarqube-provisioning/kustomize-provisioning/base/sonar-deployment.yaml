@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: sonarqube
-          image: "sonarqube:9.5-community"
+          image: "quay.io/dferreira/sonarqube-ubi8:9.6.1"
           imagePullPolicy: "IfNotPresent"
           ports:
             - name: http
