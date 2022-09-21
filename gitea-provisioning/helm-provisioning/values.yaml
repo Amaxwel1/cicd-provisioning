@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 ## You MUST specify a hostname
- hostname: gitea.apps.middleware.rhbr-lab.com
+hostname: gitea.apps.middleware.rhbr-lab.com
 
 ## Override where the gitea container image is pulling from
 # imagestream_from: quay.io/gpte-devops-automation/gitea:latest
