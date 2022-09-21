@@ -5,7 +5,7 @@ metadata:
   annotations:
     template.openshift.io/expose-uri: >-
       postgres://{.spec.clusterIP}:{.spec.ports[?(.name=="postgresql")].port}
-  name: {{ .Values.db.name | default "gitea-db" | quote }}
+  name: {{ .Values.db.name | default "gitea-db" | quote }}.name
 spec:
   ports:
     - name: postgresql
