@@ -22,7 +22,7 @@
 db: 
    password: 'S00perSekretP@ssw0rd$'
 #   name: gitea-db
-   user: gitea
-   imagestream_name: postgresql
-   imagestream_namespace: openshift
-   imagestream_tag: latest
+#  user: gitea
+#   imagestream_name: postgresql
+#   imagestream_namespace: openshift
+#   imagestream_tag: latest
