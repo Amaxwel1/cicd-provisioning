@@ -12,3 +12,5 @@ resources:
   - sonar-job-cm.yaml
   - sonar-job-rb.yaml
   - sonar-job-sa.yaml
+  - sonar-admin-pwd-job.yaml
+  - sonar-admin-secret.yaml

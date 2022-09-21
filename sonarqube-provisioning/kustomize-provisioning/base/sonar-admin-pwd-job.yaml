@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sonarqube-sonarqube-change-admin-password-hook
+  labels:
+    app: sonarqube
+    heritage: Helm
+    release: sonarqube
+    helm.sh/chart: "sonarqube-0.1.1"
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: sonarqube-sonarqube-change-admin-password-hook
+      labels:
+        app: sonarqube
+        heritage: Helm
+        release: sonarqube
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: sonarqube-sonarqube-change-default-admin-password
+        image: "quay.io/openshift/origin-cli:latest"
+        env:
+          - name: USERNAME
+            valueFrom:
+              secretKeyRef:
+                key: username
+                name: sonarqube-sonarqube
+          - name: PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: sonarqube-sonarqube
+          - name: CURRENT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: currentAdminPassword
+                name: sonarqube-sonarqube
+        command: ["sh", "-c", 'until curl -u ${USERNAME}:${CURRENT_PASSWORD} -v --connect-timeout 100 sonarqube-sonarqube:9000/api/system/status | grep -w UP; do sleep 10; done; curl -v --connect-timeout 100 -u ${USERNAME}:${CURRENT_PASSWORD} -X POST "sonarqube-sonarqube:9000/api/users/change_password?login=${USERNAME}&previousPassword=${CURRENT_PASSWORD}&password=${PASSWORD}"']
