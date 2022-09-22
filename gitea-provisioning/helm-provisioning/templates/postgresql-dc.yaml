@@ -58,22 +58,10 @@ spec:
           volumeMounts:
             - mountPath: /var/lib/pgsql/data
               name: {{ .Values.db.name | default "gitea-db" | quote }}
-          image: ' '
+          image: {{ .Values.db.image}}
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       volumes:
         - name: {{ .Values.db.name | default "gitea-db" | quote }}
           persistentVolumeClaim:
             claimName: {{ .Values.db.name | default "gitea-db" | quote }}
-  triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-          - postgresql
-        from:
-          kind: ImageStreamTag
-          name: '{{ .Values.db.imagestream_name | default "postgresql" }}:{{ .Values.db.imagestream_tag | default "latest" }}'
-          namespace: {{ .Values.db.imagestream_namespace | default "openshift" }}
-        lastTriggeredImage: ''
-      type: ImageChange
-    - type: ConfigChange
