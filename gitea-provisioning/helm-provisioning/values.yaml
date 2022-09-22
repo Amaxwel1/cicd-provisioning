@@ -8,8 +8,7 @@ hostname: gitea.apps.middleware.rhbr-lab.com
 ## Override where the gitea container image is pulling from
 image: "quay.io/gpte-devops-automation/gitea:1.17"
 
-name: gitea
-repository_size: 5Gi
+# repository_size: 5Gi
 
 # secret_key: '8 character hard to guess alpha string'
 # internal_token: '106 character hard to guess string'
