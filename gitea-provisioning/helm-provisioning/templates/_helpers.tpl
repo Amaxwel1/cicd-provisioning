@@ -14,8 +14,3 @@ Default labels for resources associated with Gitea
 {{- end }}
 
 {{/*
-Expand the name of the chart.
-*/}}
-{{- define "app.name" }}
-{{- .Values.name | default "gitea" }}
-{{- end }}
