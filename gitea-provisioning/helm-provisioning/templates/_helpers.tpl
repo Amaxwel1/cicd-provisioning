@@ -12,5 +12,3 @@ Default labels for resources associated with Gitea
     app.kubernetes.io/part-of: gitea
     generator: helm
 {{- end }}
-
-{{/*
