@@ -6,9 +6,7 @@
 hostname: gitea.apps.middleware.rhbr-lab.com
 
 ## Override where the gitea container image is pulling from
-# imagestream_from: quay.io/gpte-devops-automation/gitea:latest
-# imagestream_name: gitea
-# imagestring_tag: latest
+image: quay.io/gpte-devops-automation/gitea:1.17
 
 # repository_size: 1Gi
 
