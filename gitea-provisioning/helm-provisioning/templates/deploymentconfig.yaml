@@ -22,7 +22,7 @@ spec:
         deploymentconfig: gitea
     spec:
       containers:
-      - image: '{{ .Values.image }}
+      - image: {{ .Values.image }}
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
