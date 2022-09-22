@@ -12,3 +12,10 @@ Default labels for resources associated with Gitea
     app.kubernetes.io/part-of: gitea
     generator: helm
 {{- end }}
+
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "app.name" }}
+{{- .Values.name | default "gitea" }}
+{{- end }}
